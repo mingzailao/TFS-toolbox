@@ -88,7 +88,13 @@ ENV/
 # Rope project settings
 .ropeproject
 
-Untitled.ipynb
+# emacs
+*~
+
+*.ipynb
+# exclude notation !vis.ipynb
+
 *zero_out*
 build_op.sh
 lena.png
+
