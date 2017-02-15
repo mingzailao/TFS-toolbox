@@ -22,7 +22,7 @@ def layer(op):
         else:
             layer_input = list(self.terminals)
         # Record the calling chain
-        self.chains.append((op,args,kwargs,{}))
+        self.chains.append((name,op,args,kwargs,{}))
         # Perform the operation and get the output.
         layer_output = op(self, layer_input, *args, **kwargs)
         # Add to layer LUT.
@@ -55,12 +55,14 @@ def inv_layer(op):
             layer_input = list(self.inv_terminals)
         # Perform the operation and get the output.
         layer_output = op(self, layer_input, *args, **kwargs)
-        # Add to layer LUT.
-        self.inv_layers[name] = layer_output
         # This output is now the input for the next layer.
         self.inv_feed(layer_output)
-        # Return self for chained calls.
-        return self
+
+        # This is different from @layer, because we don't chain the calls and
+        # we need the output for saving into self.inv_layers. (Using the name
+        # of corresponding input's op, so that we can substitute it more
+        # easily)
+        return layer_output
 
     return layer_decorated
 
@@ -90,13 +92,14 @@ class Network(object):
         start_layer = start_layer or self.get_output()
         self.inv_layers = dict({'output':start_layer})
         self.inv_feed('output')
-        for op,args,kwargs,orig in self.chains[::-1]:
+        last_output = start_layer
+        for name,op,args,kwargs,orig in self.chains[::-1]:
+            self.inv_layers[name] = last_output
             try:
                 inv_op = OP_INV_MAP[op.__name__]
+                last_output = inv_op(self,orig,*args,**kwargs)
             except KeyError:
                 print "%s doesn't define inverse op, ignored the layer"%op.__name__
-                continue
-            inv_op(self,orig,*args,**kwargs)
 
     def setup(self):
         '''Construct the network. '''
