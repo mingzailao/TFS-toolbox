@@ -92,7 +92,7 @@ ENV/
 *~
 
 *.ipynb
-# exclude notation !vis.ipynb
+!vis.ipynb
 
 *zero_out*
 build_op.sh
