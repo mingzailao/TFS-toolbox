@@ -90,11 +90,6 @@ ENV/
 
 # emacs
 *~
-
-*.ipynb
-!vis.ipynb
-
-*zero_out*
-build_op.sh
-lena.png
-
+Untitled.ipynb
+dist/
+MANIFEST
