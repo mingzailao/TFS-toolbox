@@ -9,7 +9,7 @@ class FullyConnect(Layer):
                activation = ops.relu,
                name=None
   ):
-    super(FullyConnect,self).__init__(
+    Layer.__init__(
       self,
       outdim,
       activation,
@@ -31,6 +31,23 @@ class FullyConnect(Layer):
       output = tf.nn.xw_plus_b(output, weights, biases,name=scope.name)
       if self.param.activation:
         output= self.param.activation(output, name=scope.name)
+    self.variables={
+      'weights':weights,
+      'biases':biases,
+    }
     self._out = output
     return output
+
+  def inverse(self,outTensor):
+    self._inv_in = outTensor
+    name = 'inv_'+self.name
+    act = self.param.activation
+    with tf.variable_scope(name) as scope:
+      if act:
+        outTensor = act(outTensor)
+      weights = tf.transpose(self.variables['weights'])
+      inv_fc = tf.matmul(outTensor,weights)
+      print 'inv_fc '+str(outTensor.get_shape().as_list()) + '->' + str(inv_fc.get_shape().as_list())
+      self._inv_out = inv_fc
+      return inv_fc
 

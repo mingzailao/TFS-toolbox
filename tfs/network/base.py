@@ -20,10 +20,10 @@ class Network(object):
   def __init__(self,input_shape):
     self._in = tf.placeholder(tf.float32,input_shape)
     self.layers=[]
-    self.setup(input_shape)
+    self.setup()
     self._out = self.build()
 
-  def setup(self,in_shape):
+  def setup(self):
     '''Construct the network. '''
     raise NotImplementedError('Must be implemented by the subclass.')
 
@@ -32,5 +32,22 @@ class Network(object):
     tmp = self._in
     for l in self.layers:
       tmp = l.build(tmp)
-      self._out = tmp
+    self._out = tmp
     return tmp
+
+  def load(self, data_path, session, ignore_missing=False):
+    '''Load network weights.
+    data_path: The path to the numpy-serialized network weights
+    session: The current TensorFlow session
+    ignore_missing: If true, serialized weights for missing layers are ignored.
+    '''
+    data_dict = np.load(data_path).item()
+    for op_name in data_dict:
+      with tf.variable_scope(op_name, reuse=True):
+        for param_name, data in data_dict[op_name].iteritems():
+          try:
+            var = tf.get_variable(param_name)
+            session.run(var.assign(data))
+          except ValueError:
+            if not ignore_missing:
+              raise
