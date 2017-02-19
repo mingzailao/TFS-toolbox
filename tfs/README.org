@@ -1,0 +1,72 @@
+
+#+TITLE:     Design Blueprint
+#+AUTHOR:    crackhopper
+#+EMAIL:     crackhopper@gmail.com
+#+DATE:      Sun Feb 19 14:11:32 2017
+#+DESCRIPTION: 
+#+KEYWORDS: 
+#+LANGUAGE:  en
+
+* modules
+** models
+some commonly used model implementation
+- LeNet
+- AlexNet
+- VGG
+- GoogleNet
+- ResNet
+- Highway
+** network adapter
+- visualizers (deconv net)
+** network
+Main interface class
+- Network base
+  - Pretty Print (layer index : layer information)
+  - Easy Visit Any Parameters
+  - Subnetwork
+  - Merge with other network
+  - Hold a graph object
+  - Substitute immediate neurons, trainable variables
+  - load and save
+  - train
+  - predict
+  - switch device
+  - chainably create a network
+- Class Member
+  - layers
+  - loss
+  - optimizer 
+  - initializer
+  - feeder (should be a dataset object)
+  - monitor
+- Containing Tensorflow object
+  - graph object
+  - saved session
+** dataset
+class for loading data
+- preprocessor
+- get next batch
+
+class for fake data
+
+class for huge data (using tf.queue)
+** core
+*** layer
+Define the commonly used layers.
+- Create a layer base class
+  - Parameters Information
+  - Pretty Print
+
+submodule :
+- ops
+  - some self defined ops in python and cpp
+*** loss
+Receive a network object, and return a loss tensors
+*** optimizer
+Receive a loss and some parameter, return a training operator
+*** preprocessor
+gcn, standardize, random crop/flip
+*** monitor
+monitor the training process (maybe use tensorboard), used with optimizer
+*** util
+some utilities
