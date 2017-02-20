@@ -25,3 +25,7 @@ class Layer(object):
     name = name or str(type(self).__name__)
     Layer._name_counter+=1
     return '%s_%d'%(name,Layer._name_counter)
+  # need to be implemented by the subclass
+  def build(self,inTensor):
+    '''Construct the layer.'''
+    raise NotImplementedError('Must be implemented by the subclass.')

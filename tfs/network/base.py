@@ -14,7 +14,7 @@ def _network_meta(future_class_name, future_class_parents, future_class_attr):
     future_class_attr[k]=_layer_function(func_table[k])
   return type(future_class_name, future_class_parents, future_class_attr)
 
-
+# the base class of the net
 class Network(object):
   __metaclass__ = _network_meta
   def __init__(self,input_shape):
@@ -23,10 +23,10 @@ class Network(object):
     self.setup(input_shape)
     self._out = self.build()
 
+  # The function needs to be implemented
   def setup(self,in_shape):
     '''Construct the network. '''
     raise NotImplementedError('Must be implemented by the subclass.')
-
 
   def build(self):
     tmp = self._in
@@ -34,3 +34,24 @@ class Network(object):
       tmp = l.build(tmp)
       self._out = tmp
     return tmp
+  # TODO: add the summary function to summary the network
+  # TODO: add the param summary
+  # TODO: add the clear summary later
+  def summary(self):
+    """
+    The summary of the network
+    """
+    print "Summary:\n"
+    for (i,layer) in  enumerate(self.layers):
+      print(" ============================================ ")
+      print("| {:10} | {:<10} ".format("Index",i))
+      print("| {:10} | {:<10} ".format("Name",layer.param.__dict__['name']))
+      for key in layer.param.__dict__.keys():
+        if key!='name':
+          if key!="activation":
+            print("| {:10} | {:<10} ".format(key,layer.param.__dict__[key]))
+          else:
+            if  layer.param.__dict__[key]:
+              print("| {:10} | {:<10} ".format(key,layer.param.__dict__[key].func_name))
+            else:
+              print("| {:10} | {:<10} ".format(key,layer.param.__dict__[key]))
