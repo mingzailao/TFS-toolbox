@@ -34,27 +34,32 @@ class Network(object):
     self._out = tmp
     return tmp
 
-  # TODO: add the summary function to summary the network
-  # TODO: add the param summary
-  # TODO: add the clear summary later
-  def summary(self):
-    """
-    The summary of the network
-    """
-    print "Summary:\n"
-    for (i,layer) in  enumerate(self.layers):
-      print(" ============================================ ")
-      print("| {:10} | {:<10} ".format("Index",i))
-      print("| {:10} | {:<10} ".format("Name",layer.param.__dict__['name']))
-      for key in layer.param.__dict__.keys():
-        if key!='name':
-          if key!="activation":
-            print("| {:10} | {:<10} ".format(key,layer.param.__dict__[key]))
-          else:
-            if  layer.param.__dict__[key]:
-              print("| {:10} | {:<10} ".format(key,layer.param.__dict__[key].func_name))
-            else:
-              print("| {:10} | {:<10} ".format(key,layer.param.__dict__[key]))
+  # TODO: 1. change the the function name to __str__
+  # TODO: 2. build the print function for the layer
+  # TODO: 3. should be deleted later
+  def __str__(self):
+    str=''
+    for (i,layer) in enumerate(self.layers):
+      str+="Layer {} :\n".format(i)+layer.__str__()+"\n"
+    return str
+  # def summary(self):
+  #   """
+  #   The summary of the network
+  #   """
+  #   print "Summary:\n"
+  #   for (i,layer) in  enumerate(self.layers):
+  #     print(" ============================================ ")
+  #     print("| {:10} | {:<10} ".format("Index",i))
+  #     print("| {:10} | {:<10} ".format("Name",layer.param.__dict__['name']))
+  #     for key in layer.param.__dict__.keys():
+  #       if key!='name':
+  #         if key!="activation":
+  #           print("| {:10} | {:<10} ".format(key,layer.param.__dict__[key]))
+  #         else:
+  #           if  layer.param.__dict__[key]:
+  #             print("| {:10} | {:<10} ".format(key,layer.param.__dict__[key].func_name))
+  #           else:
+  #             print("| {:10} | {:<10} ".format(key,layer.param.__dict__[key]))
 
   def load(self, data_path, session, ignore_missing=False):
     '''Load network weights.

@@ -1,6 +1,11 @@
 import numpy as np
 import inspect
 import types
+
+
+easyname_dict={"FullyConnect": "FC",
+               "Conv2d":"Conv2d"}
+
 class Param(object):
   def __str__(self):
     info=[]
@@ -25,7 +30,7 @@ class Layer(object):
     if name: return name
     name = str(type(self).__name__)
     Layer._name_counter+=1
-    return '%s_%d'%(name,Layer._name_counter)
+    return '%s_%d'%(easyname_dict[name],Layer._name_counter)
 
   def build(self,inTensor):
     '''Construct the layer.'''
@@ -36,3 +41,12 @@ class Layer(object):
     self._inv_in = outTensor
     self._inv_out = outTensor
     return self._inv_out
+
+  def __str__(self):
+    """
+    print the layer
+    """
+    before_str   ="=={:8}==={:8}=".format(8*"=",8*"=")
+    attribute_str="| {:<8} | {:<8} ".format("Name","Type")
+    value_str    ="| {:<8} | {:<8} ".format(self.param.__dict__['name'],easyname_dict[str(type(self).__name__)])
+    return before_str,attribute_str,value_str

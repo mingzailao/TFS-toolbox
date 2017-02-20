@@ -50,4 +50,27 @@ class FullyConnect(Layer):
       print 'inv_fc '+str(outTensor.get_shape().as_list()) + '->' + str(inv_fc.get_shape().as_list())
       self._inv_out = inv_fc
       return inv_fc
+  def __str__(self):
+    father_before,father_attribute,father_value=super(FullyConnect,self).__str__()
+    # compute the numper of params
+    n_param = np.prod(self._in.shape[1:]).value*self.param.outdim+self.param.outdim
+    father_before   +="=={:10}=".format(10*"=")
+    father_attribute+="| {:<10} ".format("n_param")
+    father_value    +="| {:<10} ".format(n_param)
+    for key in self.param.__dict__.keys():
+        if key!='name':
+          if key!="activation":
+            father_before  +="=={:<8}=".format("="*8)
+            father_attribute+="| {:<8} ".format(key)
+            father_value    +="| {:<8} ".format(self.param.__dict__[key])
+          else:
+            if  self.param.__dict__[key]:
+              father_before  +="=={:<10}=".format("="*10)
+              father_attribute+="| {:<10} ".format(key)
+              father_value    +="| {:<10} ".format(self.param.__dict__[key].func_name)
+            else:
+              father_before  +="=={:<10}=".format("="*10)
+              father_attribute+="| {:<10} ".format(key)
+              father_value    +="| {:<10} ".format(self.param.__dict__[key])
+    return father_before+"\n"+father_attribute+"|\n"+father_value+'|'
 
