@@ -1,4 +1,5 @@
 from base import Network
+
 from lenet import LeNet
 #TODO from alexnet import AlexNet
 #TODO from vgg import VGG
