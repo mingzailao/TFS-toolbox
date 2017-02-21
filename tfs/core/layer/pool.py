@@ -33,9 +33,11 @@ class MaxPool(Layer):
   def inverse(self,outTensor):
     self._inv_in = outTensor
     name = 'inv_'+self.name
+    outshape = self._out.get_shape().as_list()
+    outshape[0]=-1 # the first dimension is used for batch
     if outTensor.get_shape().ndims != 4:
-      print 'reshaped'
-      outTensor = tf.reshape(outTensor,self._out.get_shape().as_list())
+      outTensor = tf.reshape(outTensor,outshape)
+    print outTensor.get_shape()
     out = ops.max_unpool(outTensor,self._out,name)
     print 'inv_max_pool ' + str(outTensor.get_shape().as_list()) + '->' + str(out.get_shape().as_list())
     self._inv_out = out

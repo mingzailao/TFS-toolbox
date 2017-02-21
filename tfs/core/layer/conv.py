@@ -71,10 +71,13 @@ class Conv2d(Layer):
     act = self.param.activation
     self._inv_in = outTensor
 
-    oshape = self._in.get_shape().as_list()
-    oshape[3] = oshape[3]/group
+    n,w,h,c = self._in.get_shape().as_list()
+    c = c/group
+    n = self._net._nsamples
+
     # Deconvolution for a given input and kernel
-    deconv = lambda i, k: tf.nn.conv2d_transpose(i, k, oshape ,[1, s_h, s_w, 1], padding=padding)
+    deconv = (lambda i, k:
+              tf.nn.conv2d_transpose(i, k, [n,w,h,c] ,[1, s_h, s_w, 1], padding=padding))
     with tf.variable_scope(name) as scope:
       if act:
         # TODO: only considered ReLU, don't know how to process other

@@ -11,6 +11,11 @@ class Param(object):
       info.append('%s :  %s'%(k,str(value)))
     return '\n'.join(info)
 
+  def copy(self):
+    obj = Param()
+    obj.__dict__ = self.__dict__.copy()
+    return obj
+
 class Layer(object):
   def __init__(self,*args):
     argnames,_,_,_ = inspect.getargspec(type(self).__init__)
@@ -19,6 +24,7 @@ class Layer(object):
       self.param.__dict__[k]=v
     self.param.name = self.get_unique_name(self.param.name)
     self.name = self.param.name
+    self.net = None # it is set by class Network
 
   _name_counter=0
   def get_unique_name(self,name):
@@ -36,3 +42,9 @@ class Layer(object):
     self._inv_in = outTensor
     self._inv_out = outTensor
     return self._inv_out
+
+  def copyTo(self,to_net):
+    cls = type(self)
+    obj = cls(**self.param.__dict__)
+    obj.net = to_net
+    return obj
