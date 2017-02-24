@@ -8,15 +8,14 @@ class Dropout(Layer):
                keep_prob,
                name=None
   ):
-    Layer.__init__(
+    Layer._init(
       self,
       keep_prob,
       name
     )
-  def build(self,inTensor):
-    self._in = inTensor
+  def _build(self):
+    inTensor = self._in
     output = tf.nn.dropout(inTensor, self.param.keep_prob,
                            name=self.param.name)
-    self._out = output
     return output
 

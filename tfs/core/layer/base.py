@@ -1,12 +1,19 @@
 import numpy as np
 import inspect
 import types
+from tfs.core.util import local_variable_scope,run_once_for_each_obj
+import tensorflow as tf
 
-easyname_dict={"FullyConnect": "FC",
-               "Conv2d":"Conv2d",
-               "MaxPool":"MaxPool",
-               "LRN":"LRN",
-               "Softmax":"Softmax"}
+easyname_dict={
+  "Layer":"Layer",
+  "FullyConnect": "FC",
+  "Conv2d":"Conv2d",
+  "MaxPool":"MaxPool",
+  "LRN":"LRN",
+  "Softmax":"Softmax",
+  "Dropout":"Drop",
+  "BN":'BN',
+}
 
 class Param(object):
   def __str__(self):
@@ -18,13 +25,19 @@ class Param(object):
       info.append('%s :  %s'%(k,str(value)))
     return '\n'.join(info)
 
+  def __eq__(self,other):
+    return self.__dict__==other.__dict__
+
   def copy(self):
     obj = Param()
     obj.__dict__ = self.__dict__.copy()
     return obj
 
 class Layer(object):
-  def __init__(self,*args):
+  def __init__(self,name=None):
+    self._init(name)
+
+  def _init(self,*args):
     argnames,_,_,_ = inspect.getargspec(type(self).__init__)
     self.param = Param()
     for k,v in zip(argnames[1:],args):
@@ -32,25 +45,48 @@ class Layer(object):
     self.param.name = self.get_unique_name(self.param.name)
     self.name = self.param.name
     self.net = None # it is set by class Network
+    self._in = None
+    self._out = None
+    self._variables = {}
 
-  _name_counter=0
+  @run_once_for_each_obj
   def get_unique_name(self,name):
-    if name: return name
-    name = str(type(self).__name__)
     Layer._name_counter+=1
+    if name: return name
+    name = easyname_dict[type(self).__name__]
     return '%s_%d'%(name,Layer._name_counter)
 
+  _name_counter=0
+  # this is used when defining new network
+  @classmethod
+  def reset_counter(cls):
+    Layer._name_counter=0
+
   def build(self,inTensor):
+    self._in = inTensor
+    self._out = self._build()
+    return self._out
+
+  @local_variable_scope
+  def _make_variable(self,vname,shape):
+    v=tf.get_variable(vname, shape=shape)
+    self._variables[vname]=v
+    return v
+
+  def _build(self):
     '''Run the layer. '''
     raise NotImplementedError('Must be implemented by the subclass.')
 
   def inverse(self,outTensor):
-    print '%s doesn\'t define inverse op, ignore the layer'% type(self).__name__
     self._inv_in = outTensor
-    self._inv_out = outTensor
+    self._inv_out = self._inverse()
     return self._inv_out
 
-  def copyTo(self,to_net):
+  def _inverse(self):
+    print '%s doesn\'t define inverse op, ignore the layer'% type(self).__name__
+    return self._inv_in
+
+  def copy_to(self,to_net):
     cls = type(self)
     obj = cls(**self.param.__dict__)
     obj.net = to_net

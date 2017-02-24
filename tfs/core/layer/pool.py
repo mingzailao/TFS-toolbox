@@ -10,28 +10,27 @@ class MaxPool(Layer):
                padding='SAME',
                name=None
   ):
-    Layer.__init__(
+    Layer._init(
       self,
       ksize,
       strides,
       padding,
       name
     )
-  def build(self,inTensor):
-    self._in = inTensor
+  def _build(self):
+    inTensor = self._in
     kx,ky = self.param.ksize
     sx,sy = self.param.strides
-    with tf.variable_scope(self.name) as scope:
-      output = tf.nn.max_pool(inTensor,
-                              ksize=[1,kx,ky,1],
-                              strides=[1,sx,sy,1],
-                              padding=self.param.padding,
-                              name=self.name)
-    self._out = output
+    output = tf.nn.max_pool(
+      inTensor,
+      ksize=[1,kx,ky,1],
+      strides=[1,sx,sy,1],
+      padding=self.param.padding,
+      name=self.name)
     return output
 
-  def inverse(self,outTensor):
-    self._inv_in = outTensor
+  def _inverse(self):
+    outTensor = self._inv_in
     name = 'inv_'+self.name
     outshape = self._out.get_shape().as_list()
     outshape[0]=-1 # the first dimension is used for batch

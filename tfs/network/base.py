@@ -94,7 +94,7 @@ class Network(object):
   def copy(self):
     obj = NetworkCopy()
     for l in self.layers:
-      obj.layers.append(l.copyTo(obj))
+      obj.layers.append(l.copy_to(obj))
     if hasattr(self,'_has_run') and Network.build.__name__ in self._has_run:
       input_shape = self._in.get_shape().as_list()
       obj.build(input_shape)
@@ -116,7 +116,7 @@ class Network(object):
   def subnet_(self,begin_index,end_index):
     obj = NetworkCopy()
     for l in self.layers[begin_index:end_index]:
-      obj.layers.append(l.copyTo(obj))
+      obj.layers.append(l.copy_to(obj))
     return obj
 
 class NetworkCopy(Network):

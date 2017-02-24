@@ -9,45 +9,40 @@ class FullyConnect(Layer):
                activation = ops.relu,
                name=None
   ):
-    Layer.__init__(
+    Layer._init(
       self,
       outdim,
       activation,
       name
     )
 
-  def build(self,inTensor):
-    self._in = inTensor
+  def _build(self):
+    inTensor = self._in
     input_shape = inTensor.get_shape()
-    with tf.variable_scope(self.name) as scope:
-      if input_shape.ndims == 4:
-        # The input is spatial. Vectorize it first.
-        dim = np.prod(input_shape.as_list()[1:])
-        output = tf.reshape(inTensor, [-1,dim])
-      else:
-        output, dim = (inTensor, input_shape[-1].value)
-      weights = tf.get_variable('weights', shape=[dim, self.param.outdim])
-      biases = tf.get_variable('biases', [self.param.outdim])
-      output = tf.nn.xw_plus_b(output, weights, biases,name=scope.name)
-      if self.param.activation:
-        output= self.param.activation(output, name=scope.name)
-    self.variables={
-      'weights':weights,
-      'biases':biases,
-    }
-    self._out = output
+    if input_shape.ndims == 4:
+      # The input is spatial. Vectorize it first.
+      dim = np.prod(input_shape.as_list()[1:])
+      output = tf.reshape(inTensor, [-1,dim])
+    else:
+      output, dim = (inTensor, input_shape[-1].value)
+    weights = self._make_variable('weights', shape=[dim, self.param.outdim])
+    biases = self._make_variable('biases', [self.param.outdim])
+    output = tf.nn.xw_plus_b(output, weights, biases,name=self.name)
+    if self.param.activation:
+      output= self.param.activation(output, name=self.name)
     return output
 
-  def inverse(self,outTensor):
-    self._inv_in = outTensor
+  def _inverse(self):
+    outTensor = self._inv_in
     name = 'inv_'+self.name
     act = self.param.activation
-    with tf.variable_scope(name) as scope:
-      if act:
-        outTensor = act(outTensor)
-      weights = tf.transpose(self.variables['weights'])
-      inv_fc = tf.matmul(outTensor,weights)
-      print 'inv_fc '+str(outTensor.get_shape().as_list()) + '->' + str(inv_fc.get_shape().as_list())
-      self._inv_out = inv_fc
-      return inv_fc
+    if act:
+      outTensor = act(outTensor)
+    weights = tf.transpose(self._variables['weights'])
+    inv_fc = tf.matmul(outTensor,weights)
+    shape = self._in.get_shape().as_list()
+    shape[0]=-1
+    inv_fc = tf.reshape(inv_fc,shape)
+    print 'inv_fc '+str(outTensor.get_shape().as_list()) + '->' + str(inv_fc.get_shape().as_list())
+    return inv_fc
 
