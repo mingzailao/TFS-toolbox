@@ -100,6 +100,25 @@ class Network(object):
       obj.build(input_shape)
     return obj
 
+  def __str__(self):
+    # TODO:
+    result=''
+    for (i,layer) in enumerate(self.layers):
+      result+="Layer {} :\n".format(i)+str(layer)+"\n"
+    return result
+
+  def subnet(self,begin_index,end_index):
+    obj = NetworkCopy()
+    for l in self.layers[begin_index:end_index]:
+      obj.layers.append(l)
+    return obj
+
+  def subnet_(self,begin_index,end_index):
+    obj = NetworkCopy()
+    for l in self.layers[begin_index:end_index]:
+      obj.layers.append(l.copyTo(obj))
+    return obj
+
 class NetworkCopy(Network):
   """this classes is used for initialize a network object for methods such as
 'copy' and 'subnet'
