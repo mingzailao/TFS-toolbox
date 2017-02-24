@@ -71,3 +71,8 @@ class TestLayer:
     assert not (cp.param.__dict__ is layer.param.__dict__)
     assert cp.net == None
 
+  def test_str(self,layer):
+    assert str(layer)=='=============================|\n| Name            | Type     |\n| test            | Layer    |'
+
+
+
