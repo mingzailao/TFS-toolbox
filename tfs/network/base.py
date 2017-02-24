@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 from tfs.core.layer import func_table
+from tfs.core.loss import loss_table
 from tfs.core.util import run_once_for_each_obj
 import new
 
@@ -118,6 +119,30 @@ class Network(object):
     for l in self.layers[begin_index:end_index]:
       obj.layers.append(l.copyTo(obj))
     return obj
+
+  def get_output_shape_at(self,index):
+    if hasattr(self,'_has_run') and Network.build.__name__ in self._has_run:
+      return self.layers[index]._out.get_shape().as_list()
+    else:
+      raise Exception("The network has not been built.")
+
+  def get_output_at(self,index):
+    if hasattr(self,'_has_run') and Network.build.__name__ in self._has_run:
+      return self.layers[index]._out
+    else:
+      raise Exception("The network has not been built.")
+
+  def loss(self,loss_type='categorical_crossentropy'):
+    if hasattr(self,'_has_run') and Network.build.__name__ in self._has_run:
+      return self.compute_loss(loss_type)
+    else:
+      raise Exception("The network has not been built.")
+
+  def compute_loss(self,loss_type):
+    with self._graph.as_default():
+      y_true=tf.placeholder(dtype=self._out.dtype,shape=self._out.get_shape().as_list())
+    return loss_table[loss_type](y_true,self._out)
+
 
 class NetworkCopy(Network):
   """this classes is used for initialize a network object for methods such as
