@@ -4,7 +4,7 @@ class DeconvVisNet(object):
   def __init__(self,netobj,nsamples=1):
     with netobj.graph.as_default():
       self.net = netobj
-      netobj._nsamples = nsamples
+      netobj.nsamples = nsamples
       inv_in_shape = netobj._out.get_shape().as_list()
       self._inv_in = netobj._out
       tmp = self._inv_in

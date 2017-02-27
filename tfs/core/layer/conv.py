@@ -68,7 +68,7 @@ class Conv2d(Layer):
 
     n,w,h,c = self._in.get_shape().as_list()
     c = c/group
-    n = self._net._nsamples
+    n = self.net.nsamples
 
     # Deconvolution for a given input and kernel
     deconv = (lambda i, k:

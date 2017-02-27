@@ -31,8 +31,8 @@ class TestConv:
 
     class net(object):
       pass
-    l._net=net()
-    l._net._nsamples = 1
+    l.net=net()
+    l.net.nsamples = 1
     _inv_out = l.inverse(_out)
     assert _inv_out.get_shape().as_list()==[1,10,10,4]
 

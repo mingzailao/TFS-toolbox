@@ -49,6 +49,14 @@ class Layer(object):
     self._out = None
     self._variables = {}
 
+  @property
+  def input(self):
+    return self._in
+
+  @property
+  def output(self):
+    return self._out
+
   @run_once_for_each_obj
   def get_unique_name(self,name):
     Layer._name_counter+=1
