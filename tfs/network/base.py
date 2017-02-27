@@ -3,6 +3,7 @@ import numpy as np
 from tfs.core.layer import func_table
 from tfs.core.util import run_once_for_each_obj
 import new
+from tfs.core.loss import loss_func_table
 #################### NetStructure
 def _layer_function(layerclass):
   def func(self,*args,**kwargs):
@@ -179,6 +180,25 @@ class Network(object):
     obj = Network()
     obj.setup_with_def(self.layers[begin_index:end_index])
     return obj
+
+  @property
+  def loss(self):
+    return self._loss
+
+  def compile(self,loss_func="categorical_crossentropy"):
+    self._loss=0
+    self._y_true=tf.placeholder(dtype=tf.float32,shape=self._out.get_shape().as_list())
+    assert loss_func in func_table.keys
+    self._loss+=func_table[loss_func](self._y_true,self._out)
+
+    for layer in self.layers:
+      self._loss+=layer._regularization
+
+
+  def has_compile(self):
+    return hasattr(self._loss)
+
+
 
 
 class CustomNetwork(Network):

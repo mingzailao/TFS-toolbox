@@ -1,6 +1,7 @@
 import tensorflow as tf
 import ops
 from base import Layer
+from tfs.core.regularizers import regularizier_func_table
 
 class Conv2d(Layer):
   def __init__(self,
@@ -11,7 +12,9 @@ class Conv2d(Layer):
                padding='SAME',
                group=1,
                biased=True,
-               name=None
+               name=None,
+               W_regularizer=None,
+               b_regularizer=None
   ):
     Layer._init(
       self,
@@ -22,7 +25,9 @@ class Conv2d(Layer):
       padding,
       group,
       biased,
-      name
+      name,
+      W_regularizer,
+      b_regularizer
     )
 
   def _build(self):
@@ -55,8 +60,20 @@ class Conv2d(Layer):
       output = tf.nn.bias_add(output, biases)
     if self.param.activation:
       output = self.param.activation(output, name=self.name)
+    if self.param.W_regularizer is not None or self.param.b_regularizer is not None:
+      # check the parameters of W_regularizer and b_regularizer
+      if self.W_regularizer not in regularizier_func_table or self.b_regularizer not in regularizier_func_table:
+        raise ValueError("The type of W_regularizer or the b_regularizer is not in  {}".format(regularizier_func_table.keys().__str__()))
+      self.compute_regularization()
 
     return output
+
+  def compute_regularization(self):
+    self._regularization=0
+    if self.param.W_regularizer:
+      self._regularization=tf.add(self._regularization+regularizier_func_table[self.param.W_regularizer](self._variables["weights"]))
+    if self.param.b_regularizer:
+      self._regularization=tf.add(self._regularization+regularizier_func_table[self.param.b_regularizer](self._variables["bias"]))
 
   def _inverse(self):
     outTensor = self._inv_in
