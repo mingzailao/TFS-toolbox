@@ -21,18 +21,19 @@ def mean_absolute_error(y_true,y_pred):
 def categorical_crossentropy(y_true,y_pred,from_logits=False):
     if not from_logits:
         y_pred/=tf.reduce_sum(y_pred,reduction_indices=len(y_pred.get_shape())-1,keep_dims=True)
-        epsilon=_to_tensor(_EPSILON,y_pred.dtype.base_type)
+        with y_pred.graph.as_default():
+            epsilon=_to_tensor(_EPSILON,y_pred.dtype)
         y_pred =tf.clip_by_value(y_pred,epsilon,1-epsilon)
         return -tf.reduce_sum(y_true* tf.log(y_pred),reduction_indices=len(y_pred.get_shape())-1)
     else:
         try:
-            return tf.nn.softmax_cross_entropy_with_logits(y_true,y_pred)
+            return tf.nn.softmax_cross_entropy_with_logits(labels=y_true,logits=y_pred)
         except TypeError:
-            return tf.nn.softmax_cross_entropy_with_logits(y_pred,y_true)
+            return tf.nn.softmax_cross_entropy_with_logits(labels=y_pred,logits=y_true)
 
 def binary_crossentropy(y_true,y_pred,from_logits=False):
     if not from_logits:
-        epsilon=_to_tensor(_EPSILON,y_pred.dtype.base_type)
+        epsilon=_to_tensor(_EPSILON,y_pred.dtype)
         y_pred=tf.clip_by_value(y_pred,epsilon,1-epsilon)
         y_pred=tf.log(y_pred/(1-y_pred))
     try:
